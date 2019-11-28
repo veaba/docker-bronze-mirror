@@ -6,3 +6,4 @@ std_lines= docker_ps_a.readlines()
 
 for line in std_lines:
     print(line)
+
