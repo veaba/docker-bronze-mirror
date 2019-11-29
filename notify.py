@@ -35,6 +35,13 @@ LEVEL={
 @docker {name:xx,ip:xx,level:xxx}
 
 """
-def who_shut_down_the_docker(who,docker):
+def notify_who_shut_down_the_docker(who,docker):
     pass
 
+
+"""
+@desc 僵死推送
+"""
+
+def notify_docker_is_dead(docker):
+    pass

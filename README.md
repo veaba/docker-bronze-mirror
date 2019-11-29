@@ -36,6 +36,13 @@
 (这个dir 打印奇葩的是，过一会才出现，这更好玩)
 
 
+## 线程
+
+### 相互之前不影响的线程定时器独立
+- 某a 每1s 执行一次
+- 某b 每2s 执行一次
+
+
 ## refenerce
 
 - https://tutorialedge.net/python/python-socket-io-tutorial/
