@@ -1,3 +1,4 @@
+# 执行python docker.py 在windows 下无法打印出来
 import os
 
 # 检查docker 僵死
@@ -32,9 +33,9 @@ def docker_image_list():
 # todo 获取通过id 获取name
 def docker_get_name_by_container_id():
     pass
+
 # todo 判断容器列表中，谁被关闭了
 
 
-
-if __name__ == "__main__":
-    docker_get_all_containers_list()
+# if __name__ == "__main__":
+#     docker_get_all_containers_list()

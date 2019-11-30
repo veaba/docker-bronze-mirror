@@ -2,6 +2,10 @@
 @desc 推送消息的类型
 
 """
+
+import requests
+import json
+from config import post_url
 # 动作
 ACTIONS={
 
@@ -40,8 +44,20 @@ def notify_who_shut_down_the_docker(who,docker):
 
 
 """
-@desc 僵死推送
+@desc 僵死推送 docker
 """
 
-def notify_docker_is_dead(docker):
-    pass
+def notify_docker_is_dead(id):
+    body={
+        'msgtype':'text',
+        'text':{
+            'content':'容器ID：'+id+'僵死',
+        }
+    }
+    res=requests.post(post_url,data=json.dumps(body),headers={'content-type':'application/json'})
+    print(res.text)
+
+#  todo
+
+if __name__ == "__main__":
+    notify_docker_is_dead('111')
