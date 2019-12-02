@@ -1,5 +1,6 @@
 """
 @desc 推送消息的类型
+@todo 将推送的日志都异步写到notify.log 日志文件里面去
 
 """
 
@@ -26,7 +27,7 @@ NOTIFY_TYPE={
 """
 LEVEL={
     "SSS":"恭喜您，获得举世震惊（SSSensational）成就！！！",
-    "SS":"恭喜您，获得超级虐待狂（SSadistic）",
+    "SS":"恭喜您，获得超级虐待狂（SSadistic）", 
     "S":"恭喜您，获得灭绝人性（Savage）记录",
     "A":"恭喜您，获得无法无天（Anarchic）记录",
     "B":"恭喜您，获得残暴（Burtal）记录",
@@ -45,6 +46,10 @@ def notify_who_shut_down_the_docker(who,docker):
 
 """
 @desc 僵死推送 docker
+
+【A级】：检测到从节点181.2.6.1服务器，容器：3df85570271c (user-server 服务)已退出，状态：dead，影响用户登录业务，威胁级别较高，请负责人@张三 负责处理，建议：kill容器、重启容器、或从network从一处该id，教程：http://url.cn/RAasddfc
+【B级】：检测到从节点181.2.6.1服务器，容器：3df85570271c (label-server 服务)已退出，状态：dead，影响会员标签相关业务，威胁级别一般，请负责人@李四 负责处理，建议：kill容器、重启容器、或从network从一处该id，教程：http://url.cn/RAasddfc
+
 """
 
 def notify_docker_is_dead(id):
@@ -59,6 +64,10 @@ def notify_docker_is_dead(id):
 
 """
 @desc 退出推送 docker
+【A级】：检测到从节点181.2.6.1服务器，容器：3df85570271c (user-server 服务)已退出，状态：dead，影响用户登录业务，威胁级别较高，请负责人@张三 负责处理，建议：kill容器、重启容器、或从network从一处该id，教程：http://url.cn/RAasddfc
+【B级】：检测到从节点181.2.6.1服务器，容器：3df85570271c (label-server 服务)已退出，状态：dead，影响会员标签相关业务，威胁级别一般，请负责人@李四 负责处理，建议：kill容器、重启容器、或从network从一处该id，教程：http://url.cn/RAasddfc
+
+
 """
 
 def notify_docker_is_exit(id):
@@ -70,6 +79,9 @@ def notify_docker_is_exit(id):
     }
     res=requests.post(post_url,data=json.dumps(body),headers={'content-type':'application/json'})
     print(res.text)
+
+    
+    
 
 
 #  todo

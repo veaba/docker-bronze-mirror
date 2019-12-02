@@ -1,9 +1,21 @@
+"""
+@集群模块
+    todo 分布式部署，集群监控（通过websocket 的方式实现，心跳为1s）
+    todo 静默式执行脚本
+    todo 跟随服务器自动启动
+    todo 一键重连
+    todo 增加master 和集群模式
+    todo 一键加入集群，增加授权
+    todo 监控加入到本集群的网络和从节点机器
+    todo 从节点也可以查看父节点情况
+    todo 主节点挂了怎么办？选举模式推选master 节点
+
+
+"""
 from utils import SetTimeInteval, SetTimeOut
 from docker import docker_get_exit_containers_list, docker_get_all_containers_list, docker_get_live_containers_list, docker_image_list, docker_check_is_dead, docker_check_is_exit, docker_get_dead_containers_list
 from notify import notify_docker_is_dead, notify_docker_is_exit
 # 青铜镜类
-
-
 class DockerBronzeMirror():
     # todo
     def __init__(self):

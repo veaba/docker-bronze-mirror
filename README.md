@@ -1,6 +1,14 @@
 # docker-bronze-mirror docker青铜镜
 
 
+## 功能
+
+- 分布式，集群监控(webscoket主动监控)
+- HTTPS 加密 （todo）
+- docker 精密级监控
+- 自动检测xxx
+
+
 ## 吐槽！
 
 网上的python版本的socket.io 是什么情况？？？恩？？？？
