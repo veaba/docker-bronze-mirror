@@ -33,10 +33,11 @@ def docker_check_is_exit(containerId):
 def docker_get_all_containers_obj():
     containers_list = os.popen('docker ps -a')
     obj = {}
-    for line in list(containers_list):
+    the_list= list(containers_list)[1:]
+    for line in the_list:
         info = [item for item in line.split('  ') if len(item)]
         id=info[0] or ''
-        obj[info[0]] = {
+        obj[id] = {
             'id': id,
             'container_id': id,
             'image': info[1] or '',

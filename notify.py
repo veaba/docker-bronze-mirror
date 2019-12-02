@@ -79,18 +79,15 @@ def notify_docker_is_dead(id):
 
 def notify_docker_is_exit(obj={}):
     body = {
-        'msgtype': 'text',
-        'text': {
-            'content': '【'+obj['level']+'级】：检测到节点 ' \
-            + obj['ip'] \
-            + ' 服务器，容器ID：'   \
-            + obj['id'] \
-            + '（'+obj['name']  \
-            + ' 服务）退出，'   \
-            + '状态：'+obj['status']    \
-            + '影响'+re.sub(r':.*$', '', obj['name'])+'相关业务'    \
-            + '威胁级别 →_→：'+LEVEL[obj['level']]  \
-            + '，请处理！'  
+        'msgtype': 'markdown',
+        'markdown': {
+            'content': '<font color="waring">【'+obj['level']+'级】</font>：检测到容器退出！ \n' \
+            + '> **节点：** <font color="comment">'+obj['ip'] +'</font>\n'            \
+            + '> **容器ID：** <font color="comment">' + obj['id']+'</font>\n'         \
+            + '> **服务名称：** <font color="comment">'+obj['name']+'</font>\n'       \
+            + '> **状态：** <font color="comment">'+obj['status']+'</font>\n'         \
+            + '> **威胁级别：** <font color="comment">'+LEVEL[obj['level']] +'</font>\n' \
+            + '请相关人员处理!\n'  
         }
     }
     res = requests.post(post_url, data=json.dumps(body), headers={
