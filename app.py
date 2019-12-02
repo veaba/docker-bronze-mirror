@@ -35,7 +35,16 @@ class DockerBronzeMirror():
         self.images=docker_image_list()
 
         # 僵死容器
-        
+        self._get_dead_containers_list()
+
+        # 打印
+
+        print('===> 所有容器',self.all_containers)
+        print('===> 退出容器',self.all_containers)
+        print('===> 活着容器',self.all_containers)
+        print('===> images',self._get_dead_containers_list)
+
+    # 僵死容器    
     def _get_dead_containers_list(self):
         dead_ids=[]
         for id in self.all_containers:
@@ -91,7 +100,7 @@ if __name__ == "__main__":
     dead_docker_containers.start()
 
     # 每5s 执行一次检查容器exit
-    exit_docker_containers=SetTimeInteval(docker_bronze_mirror.docker_check_exit,10)
+    exit_docker_containers=SetTimeInteval(docker_bronze_mirror.docker_check_exit,5)
     exit_docker_containers.start()
 
 
