@@ -36,11 +36,22 @@ def docker_get_exit_containers_list():
     std_lines=container_exit_list.readlines()
     return [id.replace('\n','') for id in std_lines]  
 
+# 僵死列表-列出僵死容器的列表    
+def docker_get_dead_containers_list():
+    all_containers=docker_get_all_containers_list()
+    dead_ids=[]
+    for id in all_containers:
+        if docker_check_is_dead(id):
+            dead_ids.append(id)
+    return dead_ids
+
+
 # 列出镜像列表
 def docker_image_list():
     container_live_list = os.popen('docker images -q')
     std_lines= container_live_list.readlines()
     return [id.replace('\n','') for id in std_lines]  
+
 
 # todo 获取通过id 获取name
 def docker_get_name_by_container_id():
