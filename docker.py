@@ -1,6 +1,6 @@
 # 执行python docker.py 在windows 下无法打印出来
 import os
-
+from utils import remove_newline
 # 检查docker 僵死
 
 
@@ -28,23 +28,21 @@ def docker_check_is_exit(containerId):
         return False
 
 # 获取所有容器的信息组
-
-
 def docker_get_all_containers_obj():
     containers_list = os.popen('docker ps -a')
     obj = {}
     the_list= list(containers_list)[1:]
     for line in the_list:
         info = [item for item in line.split('  ') if len(item)]
-        id=info[0] or ''
+        id=remove_newline(info[0] or '')
         obj[id] = {
             'id': id,
             'container_id': id,
-            'image': info[1] or '',
-            'command': info[2] or '',
-            'created': info[3] or '',
-            'status': info[4] or '',
-            'name': info[5] or ''
+            'image': remove_newline(info[1] or ''),
+            'command': remove_newline(info[2] or ''),
+            'created': remove_newline(info[3] or ''),
+            'status': remove_newline(info[4] or ''),
+            'name': remove_newline(info[5] or '')
         }
 
     return obj

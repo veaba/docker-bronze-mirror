@@ -8,14 +8,12 @@ IP_MAPS = {
     "192.168.1.1": "李四"
 }
 # 根据ip获取用户名称
-
-
 def get_name_by_ip(ip):
     return IP_MAPS[ip] or "未知"
 
+def remove_newline(string=""):
+    return string.replace('\n','')
 # 返回{时间:ip}
-
-
 def host_who():
     who = os.popen('who')
     std_lines = who.readlines()
