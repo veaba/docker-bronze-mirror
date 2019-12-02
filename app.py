@@ -15,7 +15,7 @@
 from utils import SetTimeInteval, SetTimeOut
 from docker import docker_get_exit_containers_list, docker_get_all_containers_list, docker_get_live_containers_list, docker_image_list, docker_check_is_dead, docker_check_is_exit, docker_get_dead_containers_list,docker_get_all_containers_obj
 from notify import notify_docker_is_dead, notify_docker_is_exit
-
+from datetime import datetime
 import sys
 # 青铜镜类
 
@@ -63,13 +63,13 @@ class DockerBronzeMirror():
 
         # 打印
 
-        print('===> 容器信息：', self.all_containers_obj)
-        print('===> 所有容器：', self.all_containers)
-        print('===> 退出容器：', self.exit_containers)
-        print('===> 活着容器：', self.live_containers)
-        print('===> 僵死容器：', self.dead_containers)
-        print('===> 镜像列表：', self.images)
-        print('******************************************')
+        # print('===> 容器信息：', self.all_containers_obj)
+        # print('===> 所有容器：', self.all_containers)
+        # print('===> 退出容器：', self.exit_containers)
+        # print('===> 活着容器：', self.live_containers)
+        # print('===> 僵死容器：', self.dead_containers)
+        # print('===> 镜像列表：', self.images)
+        print('*****************'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'*************************')
 
     # todo 检查到容器死掉，则发送警告
     # @staticmethod
@@ -83,7 +83,8 @@ class DockerBronzeMirror():
     # @staticmethod
     def docker_check_exit(self):
         for id in self.exit_containers:
-            if docker_check_is_exit(id):
+            # todo 过滤
+            if docker_check_is_exit(id) and not('order' in self.all_containers_obj[id]['name'] or 'coupon' in self.all_containers_obj[id]['name']):
                 current_item=self.all_containers_obj[id]
                 current_item['ip']=self.ip
                 current_item['level']='B'
@@ -133,5 +134,5 @@ if __name__ == "__main__":
 
     # 每5s 执行一次检查容器exit
     exit_docker_containers = SetTimeInteval(
-        docker_bronze_mirror.docker_check_exit, 60)
+        docker_bronze_mirror.docker_check_exit, 5)
     exit_docker_containers.start()
