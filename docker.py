@@ -4,7 +4,8 @@ import os
 # 检查docker 僵死
 def docker_check_is_dead(containerId):
     docker_dead_status=os.popen('docker inspect --format="{{.State.Dead}}" '+containerId)
-    if docker_dead_status=='true':
+    dead_status_list=[status.replace('\n','') for status in list(docker_dead_status)]
+    if 'true' in dead_status_list:
         return True
     else:
         return False
@@ -12,7 +13,8 @@ def docker_check_is_dead(containerId):
 # 检查docker exit
 def docker_check_is_exit(containerId):
     docker_exit_status=os.popen('docker inspect --format="{{.State.Status}}" '+containerId)
-    if docker_exit_status=='exited':
+    exit_status_list=[status.replace('\n','') for status in list(docker_exit_status)]
+    if 'exited' in exit_status_list:
         return True
     else:
         return False

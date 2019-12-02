@@ -59,11 +59,13 @@ class DockerBronzeMirror():
     # todo 检查到容器退出，则发送警告
     # @staticmethod
     def docker_check_exit(self):
-        exit_ids = []
+        print('exit_容器:',self.exit_containers)
         for id in self.exit_containers:
+            print('exit:',id)
             if docker_check_is_exit(id):
+                print('is/0:',id)
                 notify_docker_is_exit(id)
-                exit_ids.append(id)
+        print('chec===,',)        
 
     # ------------------------- 青铜镜-公开方法 ---------------------------#
     # todo 需要每 x秒 就存储 活着 容器的id列表
