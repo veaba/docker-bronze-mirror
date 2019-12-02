@@ -17,19 +17,24 @@ def docker_check_is_exit(containerId):
     else:
         return False
 
-# 列出docker 容器id 列表
+# 所有列表-所有容器
 def docker_get_all_containers_list():
     containers_list= os.popen('docker ps -a -q')
     std_lines= containers_list.readlines()
     return [id.replace('\n','') for id in std_lines]  
 
 
-# 列出活着的容器id 列表
+# 活着列表-列出活着容器
 def docker_get_live_containers_list():
     container_live_list = os.popen('docker ps -q')
     std_lines= container_live_list.readlines()
     return [id.replace('\n','') for id in std_lines]  
 
+# 退出列表-列出退出容器的列表
+def docker_get_exit_containers_list():
+    container_exit_list=os.popen('docker ps -f STATUS=exited -q')
+    std_lines=container_exit_list.readlines()
+    return [id.replace('\n','') for id in std_lines]  
 
 # 列出镜像列表
 def docker_image_list():
