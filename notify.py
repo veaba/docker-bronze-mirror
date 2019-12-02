@@ -57,6 +57,21 @@ def notify_docker_is_dead(id):
     res=requests.post(post_url,data=json.dumps(body),headers={'content-type':'application/json'})
     print(res.text)
 
+"""
+@desc 退出推送 docker
+"""
+
+def notify_docker_is_exit(id):
+    body={
+        'msgtype':'text',
+        'text':{
+            'content':'容器ID：'+id+'退出',
+        }
+    }
+    res=requests.post(post_url,data=json.dumps(body),headers={'content-type':'application/json'})
+    print(res.text)
+
+
 #  todo
 
 if __name__ == "__main__":

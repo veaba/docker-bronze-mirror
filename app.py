@@ -1,6 +1,6 @@
 from utils import SetTimeInteval,SetTimeOut
-from docker import docker_get_all_containers_list,docker_get_live_containers_list,docker_image_list,docker_check_is_dead
-from notify import  notify_docker_is_dead
+from docker import docker_get_all_containers_list,docker_get_live_containers_list,docker_image_list,docker_check_is_dead,docker_check_is_exit
+from notify import  notify_docker_is_dead,notify_docker_is_exit
 # 青铜镜类
 class DockerBronzeMirror():
     # todo 
@@ -8,7 +8,8 @@ class DockerBronzeMirror():
         self.container=[]           # todo 全部参数
         self.all_containers=[]      # 全部的容器列表
         self.live_containers=[]     # 存储的容器列表
-        self.dead_contianers=[]     # 僵死的容器列表
+        self.dead_containers=[]     # 僵死的容器列表
+        self.exit_containers=[]     # 退出的容器列巴
         self.images=[]              # 镜像列表
 
     @staticmethod
@@ -26,8 +27,17 @@ class DockerBronzeMirror():
             if docker_check_is_dead(id):
                 notify_docker_is_dead(id)
                 dead_ids.append(id)
-        self.dead_contianers()
 
+
+    # todo 检查到容器退出，则发送警告
+    @staticmethod
+    def docker_check_exit(self):
+        exit_ids=[]
+        for id in self.exit_containers:
+            if docker_check_is_exit(id):
+                notify_docker_is_exit(id)
+                exit_ids.append(id)
+                
     # ------------------------- 青铜镜-公开方法 ---------------------------#
     # todo 需要每 x秒 就存储 活着 容器的id列表
     @staticmethod
@@ -55,8 +65,12 @@ if __name__ == "__main__":
     all_docker_containers.start()
 
     # # 每3s 执行一次检查容器僵死
-    # dead_docker_containers=SetTimeInteval(docker_bronze_mirror.docker_check_dead,3)
-    # dead_docker_containers.start()
+    dead_docker_containers=SetTimeInteval(docker_bronze_mirror.docker_check_dead,3)
+    dead_docker_containers.start()
+
+    # 每5s 执行一次检查容器exit
+    exit_docker_containers=SetTimeInteval(docker_bronze_mirror.docker_check_exit,10)
+    exit_docker_containers.start()
 
 
 
