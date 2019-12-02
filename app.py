@@ -24,7 +24,7 @@ class DockerBronzeMirror():
     # todo
     def __init__(self, ip=""):
         self.ip = ip                        # 服务器ip
-        self.all_containers_obj=[]         # 所有容器的对象 
+        self.all_containers_obj={}         # 所有容器的对象 
         self.container = []                 # todo 全部参数
         self.all_containers = []            # 全部的容器列表
         self.live_containers = []           # 存储的容器列表
@@ -63,6 +63,7 @@ class DockerBronzeMirror():
 
         # 打印
 
+        print('===> 容器信息：', self.all_containers_obj)
         print('===> 所有容器：', self.all_containers)
         print('===> 退出容器：', self.exit_containers)
         print('===> 活着容器：', self.live_containers)
