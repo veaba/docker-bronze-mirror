@@ -11,7 +11,7 @@ def docker_check_is_dead(containerId):
 
 # 检查docker exit
 def docker_check_is_exit(containerId):
-    docker_exit_status=os.open('docker inspect --format="{{.State.Status}}" '+containerId)
+    docker_exit_status=os.popen('docker inspect --format="{{.State.Status}}" '+containerId)
     if docker_exit_status=='exited':
         return True
     else:
