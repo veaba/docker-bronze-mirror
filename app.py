@@ -20,7 +20,7 @@ class DockerBronzeMirror():
     
     # ------------------------- 青铜镜-内置方法 ---------------------------#
     # todo 检查到容器死掉，则发送警告
-    @staticmethod
+    # @staticmethod
     def docker_check_dead(self):
         dead_ids=[]
         for id in self.all_containers:
@@ -30,7 +30,7 @@ class DockerBronzeMirror():
 
 
     # todo 检查到容器退出，则发送警告
-    @staticmethod
+    # @staticmethod
     def docker_check_exit(self):
         exit_ids=[]
         for id in self.exit_containers:
@@ -40,8 +40,8 @@ class DockerBronzeMirror():
                 
     # ------------------------- 青铜镜-公开方法 ---------------------------#
     # todo 需要每 x秒 就存储 活着 容器的id列表
-    @staticmethod
-    def get__docker_live_containers():
+    # @staticmethod
+    def get__docker_live_containers(self):
         pass
 
     # todo 需要每 x秒 就存储 全部 容器的id列表，
@@ -49,8 +49,8 @@ class DockerBronzeMirror():
         self.all_containers=docker_get_all_containers_list()
     
     # todo 需要每 x秒 就存储 退出的容器id列表
-    @staticmethod
-    def get_docker_exit_containers():
+    # @staticmethod
+    def get_docker_exit_containers(self):
         pass
 
     # todo 需要每 x秒 就存储 镜像id 列表
