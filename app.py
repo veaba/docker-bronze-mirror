@@ -13,18 +13,24 @@
 
 """
 from utils import SetTimeInteval, SetTimeOut
-from docker import docker_get_exit_containers_list, docker_get_all_containers_list, docker_get_live_containers_list, docker_image_list, docker_check_is_dead, docker_check_is_exit, docker_get_dead_containers_list
+from docker import docker_get_exit_containers_list, docker_get_all_containers_list, docker_get_live_containers_list, docker_image_list, docker_check_is_dead, docker_check_is_exit, docker_get_dead_containers_list,docker_get_all_containers_obj
 from notify import notify_docker_is_dead, notify_docker_is_exit
+
+import sys
 # 青铜镜类
+
+
 class DockerBronzeMirror():
     # todo
-    def __init__(self):
-        self.container = []           # todo 全部参数
-        self.all_containers = []      # 全部的容器列表
-        self.live_containers = []     # 存储的容器列表
-        self.dead_containers = []     # 僵死的容器列表
-        self.exit_containers = []     # 退出的容器列巴
-        self.images = []              # 镜像列表
+    def __init__(self, ip=""):
+        self.ip = ip                        # 服务器ip
+        self.all_containers_obj=[]         # 所有容器的对象 
+        self.container = []                 # todo 全部参数
+        self.all_containers = []            # 全部的容器列表
+        self.live_containers = []           # 存储的容器列表
+        self.dead_containers = []           # 僵死的容器列表
+        self.exit_containers = []           # 退出的容器列巴
+        self.images = []                    # 镜像列表
 
     @staticmethod
     def run(self):
@@ -36,6 +42,10 @@ class DockerBronzeMirror():
     # docker 心跳，每1s执行一次
 
     def docker_heart_beat(self):
+
+        # 所有容器的信息
+        self.all_containers_obj=docker_get_all_containers_obj()
+    
         # 所有容器
         self.all_containers = docker_get_all_containers_list()
 
@@ -71,13 +81,12 @@ class DockerBronzeMirror():
     # todo 检查到容器退出，则发送警告
     # @staticmethod
     def docker_check_exit(self):
-        print('exit_容器:',self.exit_containers)
         for id in self.exit_containers:
-            print('exit:',id)
             if docker_check_is_exit(id):
-                print('is/0:',id)
-                notify_docker_is_exit(id)
-        print('chec===,',)        
+                current_item=self.all_containers_obj[id]
+                current_item['ip']=self.ip
+                current_item['level']='B'
+                notify_docker_is_exit(current_item)
 
     # ------------------------- 青铜镜-公开方法 ---------------------------#
     # todo 需要每 x秒 就存储 活着 容器的id列表
@@ -100,7 +109,16 @@ class DockerBronzeMirror():
 if __name__ == "__main__":
     # 实例化青铜镜
 
-    docker_bronze_mirror = DockerBronzeMirror()
+    print(sys.argv)
+
+    ip = ""
+
+    for arg in sys.argv:
+        if 'ip=' in arg:
+            ip = arg[3:]
+            break
+
+    docker_bronze_mirror = DockerBronzeMirror(ip=ip)
 
     # 容器心跳，获取所有容器，活着的容器、退出的容器、僵死容器
     heart_beat = SetTimeInteval(
@@ -108,11 +126,11 @@ if __name__ == "__main__":
     heart_beat.start()
 
     # # 每3s 执行一次检查容器僵死
-    dead_docker_containers = SetTimeInteval(
-        docker_bronze_mirror.docker_check_dead, 3)
-    dead_docker_containers.start()
+    # dead_docker_containers = SetTimeInteval(
+    #     docker_bronze_mirror.docker_check_dead, 3)
+    # dead_docker_containers.start()
 
     # 每5s 执行一次检查容器exit
     exit_docker_containers = SetTimeInteval(
-        docker_bronze_mirror.docker_check_exit, 5)
+        docker_bronze_mirror.docker_check_exit, 60)
     exit_docker_containers.start()

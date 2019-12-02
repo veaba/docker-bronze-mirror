@@ -19,6 +19,20 @@ def docker_check_is_exit(containerId):
     else:
         return False
 
+# 获取所有容器的信息组
+def docker_get_all_containers_obj():
+    containers_list=os.popen('docker ps -a')
+    obj={}
+    for line in list(containers_list):
+        info = [item for item in line.split('  ') if len(item)]
+        obj['container_id']=info[0] or ''
+        obj['image']=info[1] or ''
+        obj['command']=info[2] or ''
+        obj['created']=info[3] or ''
+        obj['status']=info[4] or ''
+        obj['name']=info[5] or ''
+    return obj
+
 # 所有列表-所有容器
 def docker_get_all_containers_list():
     containers_list= os.popen('docker ps -a -q')
