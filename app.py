@@ -40,9 +40,10 @@ class DockerBronzeMirror():
         # 打印
 
         print('===> 所有容器',self.all_containers)
-        print('===> 退出容器',self.all_containers)
-        print('===> 活着容器',self.all_containers)
-        print('===> images',self._get_dead_containers_list)
+        print('===> 退出容器',self.exit_containers)
+        print('===> 活着容器',self.live_containers)
+        print('===> 僵死容器',self.dead_containers)
+        print('===> images',self.images)
 
     # 僵死容器    
     def _get_dead_containers_list(self):
