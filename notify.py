@@ -8,19 +8,20 @@ import requests
 import re
 import json
 from config import post_url
+
 # 动作
 ACTIONS = {
 
 }
 NOTIFY = {
-    "SOME_ONE_LOGIN": 1,     # 有人在登录
-    "DOCER_IS_CLOSE": 2,     # docker 在关闭
+    "SOME_ONE_LOGIN": 1,  # 有人在登录
+    "DOCKER_IS_CLOSE": 2,  # docker 在关闭
 }
 
 # 警告类型1
 NOTIFY_TYPE = {
-    "SOME_ONE_CLOSE_DOCKER": 1,              # 有人关闭docler
-    "DOCKER_IS_DOWN_FOR_THREE_MINUTES": 2,    # docker 宕机 x 分钟
+    "SOME_ONE_CLOSE_DOCKER": 1,  # 有人关闭docler
+    "DOCKER_IS_DOWN_FOR_THREE_MINUTES": 2,  # docker 宕机 x 分钟
 }
 
 """"
@@ -50,52 +51,76 @@ def notify_who_shut_down_the_docker(who, docker):
 """
 @desc 僵死推送 docker
 
-【A级】：检测到从节点181.2.6.1服务器，容器：3df85570271c (user-server 服务)已退出，状态：dead，影响用户登录业务，威胁级别较高，请负责人@张三 负责处理，建议：kill容器、重启容器、或从network从一处该id，教程：http://url.cn/RAasddfc
-【B级】：检测到从节点181.2.6.1服务器，容器：3df85570271c (label-server 服务)已退出，状态：dead，影响会员标签相关业务，威胁级别一般，请负责人@李四 负责处理，建议：kill容器、重启容器、或从network从一处该id，教程：http://url.cn/RAasddfc
-
 """
 
 
-def notify_docker_is_dead(id):
-    body = {
-        'msgtype': 'text',
-        'text': {
-            'content': '容器ID：'+id+'僵死',
-        }
-    }
-    res = requests.post(post_url, data=json.dumps(body), headers={
-                        'content-type': 'application/json'})
-    print(res.text)
-
-
-"""
-@desc 退出（exit）推送 docker
-【A级】：检测到从节点181.2.6.1服务器，容器：3df85570271c (user-server 服务)已退出，状态：dead，影响用户登录业务，威胁级别较高，请负责人@张三 负责处理，建议：kill容器、重启容器、或从network从一处该id，教程：http://url.cn/RAasddfc
-【B级】：检测到从节点 181.2.6.1服务器，容器：3df85570271c (label-server 服务)已退出，状态：dead，影响会员标签相关业务，威胁级别一般，请负责人@李四 负责处理，建议：kill容器、重启容器、或从network从一处该id，教程：http://url.cn/RAasddfc
-
-
-"""
-
-
-def notify_docker_is_exit(obj={}):
+def notify_docker_is_dead(obj=None):
+    if obj is None:
+        obj = {}
     body = {
         'msgtype': 'markdown',
         'markdown': {
-            'content': '<font color="warning">【'+obj['level']+'级】</font>：检测到容器退出！ \n'
-            + '> **节点：** <font color="comment">' + obj['ip'] + '</font>\n'
-            + '> **容器ID：** <font color="comment">' + obj['id']+'</font>\n'
-            + '> **服务名称：** <font color="comment">' + obj['name']+'</font>\n'
-            + '> **状态：** <font color="comment">'+obj['status']+'</font>\n'
-            + '> **威胁级别：** <font color="comment">' +
-            LEVEL[obj['level']] + '</font>\n'
-            + '请相关人员处理!\n'
+            'content': '<font color="warning">【' + obj['level'] + '级】</font>：检测到容器僵死！ \n'
+                       + '> **节点：** <font color="comment">' + obj['ip'] + '</font>\n'
+                       + '> **容器ID：** <font color="comment">' + obj['id'] + '</font>\n'
+                       + '> **服务名称：** <font color="comment">' + obj['names'] + '</font>\n'
+                       + '> **状态：** <font color="comment">' + obj['status'] + '</font>\n'
+                       + '> **威胁级别：** <font color="comment">' +
+                       LEVEL[obj['level']] + '</font>\n'
+                       + '请相关人员处理!\n'
         }
     }
     res = requests.post(post_url, data=json.dumps(body), headers={
-                        'content-type': 'application/json'})
+        'content-type': 'application/json'})
     print(res.text)
 
 
-#  todo
+"""
+@desc 退出（exit）推送 docker 
+"""
+
+
+def notify_docker_is_exit(obj):
+    body = {
+        'msgtype': 'markdown',
+        'markdown': {
+            'content': '<font color="warning">【' + obj['level'] + '级】</font>：检测到容器退出！ \n'
+                       + '> **节点：** <font color="comment">' + obj['ip'] + '</font>\n'
+                       + '> **容器ID：** <font color="comment">' + obj['id'] + '</font>\n'
+                       + '> **服务名称：** <font color="comment">' + obj['names'] + '</font>\n'
+                       + '> **状态：** <font color="comment">' + obj['status'] + '</font>\n'
+                       + '> **威胁级别：** <font color="comment">' +
+                       LEVEL[obj['level']] + '</font>\n'
+                       + '请相关人员处理!\n'
+        }
+    }
+    res = requests.post(post_url, data=json.dumps(body), headers={
+        'content-type': 'application/json'})
+    print(res.text)
+
+
+"""
+@desc 容器丢失（lost）推送 docker
+"""
+
+
+def notify_docker_is_lost(obj):
+    body = {
+        'msgtype': 'markdown',
+        'markdown': {
+            'content': '<font color="warning">【' + obj['level'] + '级】</font>：检测到服务丢失，可能有人在重启容器！ \n'
+                       + '> **节点：** <font color="comment">' + obj['ip'] + '</font>\n'
+                       + '> **服务名称：** <font color="comment">' + obj['names'] + '</font>\n'
+                       + '> **状态：** <font color="comment">可能在重启</font>\n'
+                       + '> **威胁级别：** <font color="comment">' +
+                       LEVEL[obj['level']] + '</font>\n'
+                       + '请咨询相关人员处理!\n'
+        }
+    }
+    res = requests.post(post_url, data=json.dumps(body), headers={
+        'content-type': 'application/json'})
+    print(res.text)
+
+
 if __name__ == "__main__":
     notify_docker_is_dead('111')

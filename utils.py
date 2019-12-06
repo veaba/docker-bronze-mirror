@@ -3,16 +3,22 @@ import os
 import time
 from multiprocessing.pool import ThreadPool
 import threading
+
 IP_MAPS = {
     "127.0.0.1": "张三",
     "192.168.1.1": "李四"
 }
+
+
 # 根据ip获取用户名称
 def get_name_by_ip(ip):
     return IP_MAPS[ip] or "未知"
 
+
 def remove_newline(string=""):
-    return string.replace('\n','')
+    return string.replace('\n', '').strip()
+
+
 # 返回{时间:ip}
 def host_who():
     who = os.popen('who')
@@ -22,10 +28,10 @@ def host_who():
         time_and_ip = re.sub(r'^.*        ', '', line.strip())
         time_and_ip = time_and_ip.split(' (')
         ip = ""
-        time = time_and_ip[0]+'00'
+        new_time = time_and_ip[0] + '00'
         if len(time_and_ip) == 2:
             ip = time_and_ip[1][0:-1]
-        time_ip_map[time] = ip
+        time_ip_map[new_time] = ip
     """
     {
         time:"ip",
@@ -34,27 +40,28 @@ def host_who():
     """
     return time_ip_map
 
+
 # 2019-11-28 22:11 转时间戳 => 1574950260
 # 根据操作的时间和最近的登录日志获取到ip
 # 返回登录时间：ip
 
 
-def time_to_timestmap(time_str):
+def time_to_timestamp(time_str):
     # 转为时间数组
-    timeArray = time.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+    time_array = time.strptime(time_str, "%Y-%m-%d %H:%M:%S")
     # 转为时间戳
-    timeStamp = int(time.mktime(timeArray))
-    return timeStamp
+    timestamp = int(time.mktime(time_array))
+    return timestamp
 
 
 # 定时器 多线程执行函数
-class SetTimeInteval(threading.Thread):
-    def __init__(self,fn=None,second=1,clear=False):
+class SetTimeInterval(threading.Thread):
+    def __init__(self, fn=None, second=1, clear=False):
         threading.Thread.__init__(self)
-        self.fn=fn
-        self.second=second
-        self.clear=clear
-    
+        self.fn = fn
+        self.second = second
+        self.clear = clear
+
     def run(self):
         while True:
             if self.clear:
@@ -65,12 +72,12 @@ class SetTimeInteval(threading.Thread):
 
 # 延时器 多线程执行函数
 class SetTimeOut(threading.Thread):
-    def __init__(self,fn=None,second=1,clear=False):
+    def __init__(self, fn=None, second=1, clear=False):
         threading.Thread.__init__(self)
-        self.fn=fn
-        self.second=second
-        self.clear=clear
-    
+        self.fn = fn
+        self.second = second
+        self.clear = clear
+
     def run(self):
         time.sleep(self.second)
         self.fn()
@@ -80,7 +87,7 @@ class SetTimeOut(threading.Thread):
 # fn 执行函数，
 # second 单位 秒，表示每x second 执行一次
 # clear  入参，则打断
-# def setTimeInteval(fn, second, clear=False):
+# def SetTimeInterval(fn, second, clear=False):
 #     while True:
 #         if clear:
 #             break
@@ -96,4 +103,4 @@ class SetTimeOut(threading.Thread):
 
 if __name__ == "__main__":
     # host_who()
-    time_to_timestmap('2019-11-28 22:11:00')
+    time_to_timestamp('2019-11-28 22:11:00')

@@ -5,7 +5,7 @@
 # # fn 执行函数，
 # # second 单位 秒，表示每x second 执行一次
 # # clear  入参，则打断
-# def setTimeInteval(fn,second,clear=False):
+# def SetTimeInterval(fn,second,clear=False):
 #     while True:
 #         if clear:
 #             break
@@ -27,7 +27,7 @@
 
 # if __name__ == "__main__":
 #     pass
-#     # setTimeInteval(xx,1)
+#     # SetTimeInterval(xx,1)
 #     # setTimeOut(xx,1)
-#     # setTimeInteval(xx,1,clear=True)
+#     # SetTimeInterval(xx,1,clear=True)
 

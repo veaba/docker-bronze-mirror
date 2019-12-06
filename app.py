@@ -12,40 +12,60 @@
 
 
 """
-from utils import SetTimeInteval, SetTimeOut
-from docker import docker_get_exit_containers_list, docker_get_all_containers_list, docker_get_live_containers_list, docker_image_list, docker_check_is_dead, docker_check_is_exit, docker_get_dead_containers_list,docker_get_all_containers_obj
-from notify import notify_docker_is_dead, notify_docker_is_exit
+from utils import SetTimeInterval, SetTimeOut
+from docker import docker_get_exit_containers_list, docker_get_all_containers_list, docker_get_live_containers_list, \
+    docker_image_list, docker_check_is_dead, docker_check_is_exit, docker_get_dead_containers_list, \
+    docker_get_all_containers_obj
+from notify import notify_docker_is_dead, notify_docker_is_exit, notify_docker_is_lost
 from datetime import datetime
 import sys
+import re
+
+
 # 青铜镜类
 
 
-class DockerBronzeMirror():
-    # todo
-    def __init__(self, ip=""):
-        self.ip = ip                        # 服务器ip
-        self.all_containers_obj={}         # 所有容器的对象 
-        self.container = []                 # todo 全部参数
-        self.all_containers = []            # 全部的容器列表
-        self.live_containers = []           # 存储的容器列表
-        self.dead_containers = []           # 僵死的容器列表
-        self.exit_containers = []           # 退出的容器列巴
-        self.images = []                    # 镜像列表
+class DockerBronzeMirror:
+    def __init__(self, ip="61.174.254.105", ignore=None):
+        # 默认填补忽略的容器名
+        if ignore is None:
+            ignore = ['report', 'order', 'bill', 'activity']
+        self.ip = ip  # 服务器ip
+        self.all_containers_obj = {}  # 所有容器的对象
+        self.all_containers = []  # 全部的容器列表
+        self.live_containers = []  # 存储的容器列表
+        self.dead_containers = []  # 僵死的容器列表
+        self.exit_containers = []  # 退出的容器列表
+        self.images = []  # 镜像列表
 
-    @staticmethod
+        # ignore 暂时用不到的服务
+        self.ignore_containers = ignore
+
+        # 常用的容器，如果不见了则发出警报
+        self.exist_containers = ['crm', 'integration', 'webchatslzt', 'activity', 'coupon', 'etl',
+                                 'customer']  # 常用的容器列表
+
     def run(self):
         print('run~~~~~')
         self.docker_check_dead()
         pass
 
     # ------------------------- 青铜镜-内置方法 ---------------------------#
+    def _is_ignore_container(self, container_name):
+        container_name = re.sub(r'-server.*$', '', container_name)
+        if container_name in self.ignore_containers:
+            return True
+        else:
+            return False
+
+    # ------------------------- 青铜镜-系统方法 ---------------------------#
     # docker 心跳，每1s执行一次
 
     def docker_heart_beat(self):
 
         # 所有容器的信息
-        self.all_containers_obj=docker_get_all_containers_obj()
-    
+        self.all_containers_obj = docker_get_all_containers_obj()
+
         # 所有容器
         self.all_containers = docker_get_all_containers_list()
 
@@ -54,6 +74,8 @@ class DockerBronzeMirror():
 
         # 活着容器
         self.live_containers = docker_get_live_containers_list()
+
+        # todo 容器不见，通过kill、stop、rm的方式
 
         # 镜像列表
         self.images = docker_image_list()
@@ -69,43 +91,62 @@ class DockerBronzeMirror():
         # print('===> 活着容器：', self.live_containers)
         # print('===> 僵死容器：', self.dead_containers)
         # print('===> 镜像列表：', self.images)
-        print('*****************'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'*************************')
+        # print('*****************'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'*************************')
 
-    # todo 检查到容器死掉，则发送警告
-    # @staticmethod
-
+    # 检查到容器死掉，则发送警告
     def docker_check_dead(self):
-        for id in self.dead_containers:
-            if docker_check_is_dead(id):
-                notify_docker_is_dead(id)
+        for container_id in self.dead_containers:
+            if docker_check_is_dead(container_id):
+                current_item = self.all_containers_obj[container_id]
+                current_item['ip'] = self.ip
+                current_item['level'] = 'C'
+                notify_docker_is_dead(current_item)
 
-    # todo 检查到容器退出，则发送警告
-    # @staticmethod
+    # 检查到容器不见，通过kill、stop、rm的方式
+    def docker_check_lost(self):
+        lost_labels_name = []
+        for container_id in self.all_containers:
+            obj = self.all_containers_obj[container_id] or {}
+            the_name = obj['names'].strip()
+            the_name = re.sub(r'-server.*$', '', the_name)
+            lost_labels_name.append(the_name)
+
+        # 存在现在的容器名列表
+        # print('现在存在的容器名列表===>', lost_labels_name)
+        # print('需要检测的容器名列表===>', self.exist_containers)
+        for label_name in self.exist_containers:
+            if label_name not in lost_labels_name:
+                print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '容器不见===>', label_name)
+                notify_docker_is_lost({
+                    'ip': self.ip,
+                    'names': label_name + '-server',
+                    'level': 'C'
+                })
+
+    # 检查到容器退出(exit)，则发送警告
     def docker_check_exit(self):
-        for id in self.exit_containers:
-            # todo 过滤
-            if docker_check_is_exit(id) and not('order' in self.all_containers_obj[id]['name'] or 'coupon' in self.all_containers_obj[id]['name']):
-                current_item=self.all_containers_obj[id]
-                current_item['ip']=self.ip
-                current_item['level']='B'
-                notify_docker_is_exit(current_item)
+        for item in self.exit_containers:
+            if docker_check_is_exit(item['container_id']):
+                # 过滤无关容器名词
+                if not (self._is_ignore_container(item['names'])):
+                    current_item = item
+                    current_item['ip'] = self.ip
+                    current_item['level'] = 'B'
+                    notify_docker_is_exit(current_item)
+                    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '容器退出检测：===>', current_item)
 
     # ------------------------- 青铜镜-公开方法 ---------------------------#
     # todo 需要每 x秒 就存储 活着 容器的id列表
-    # @staticmethod
     def get__docker_live_containers(self):
         pass
 
-    # todo 需要每 x秒 就存储 全部 容器的id列表，
+    # 需要每 x秒 就存储 全部 容器的id列表，
     def _get_docker_all_containers(self):
         self.all_containers = docker_get_all_containers_list()
 
     # todo 需要每 x秒 就存储 退出的容器id列表
-    # @staticmethod
     def get_docker_exit_containers(self):
         pass
-
-    # todo 需要每 x秒 就存储 镜像id 列表
 
 
 if __name__ == "__main__":
@@ -123,16 +164,22 @@ if __name__ == "__main__":
     docker_bronze_mirror = DockerBronzeMirror(ip=ip)
 
     # 容器心跳，获取所有容器，活着的容器、退出的容器、僵死容器
-    heart_beat = SetTimeInteval(
+    heart_beat = SetTimeInterval(
         docker_bronze_mirror.docker_heart_beat, 1)  # 每x秒执行一次
     heart_beat.start()
 
-    # # 每3s 执行一次检查容器僵死
-    # dead_docker_containers = SetTimeInteval(
-    #     docker_bronze_mirror.docker_check_dead, 3)
-    # dead_docker_containers.start()
+    # 每30s 执行一次检查容器僵死
+    dead_docker_containers = SetTimeInterval(
+        docker_bronze_mirror.docker_check_dead, 30)
+    dead_docker_containers.start()
+
+    # 每10s 执行一次检查容器是否不见了
+    lost_docker_containers = SetTimeInterval(
+        docker_bronze_mirror.docker_check_lost, 10
+    )
+    lost_docker_containers.start()
 
     # 每5s 执行一次检查容器exit
-    exit_docker_containers = SetTimeInteval(
+    exit_docker_containers = SetTimeInterval(
         docker_bronze_mirror.docker_check_exit, 5)
     exit_docker_containers.start()
